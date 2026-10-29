@@ -3,6 +3,8 @@ package excel_export
 import (
 	"encoding/base64"
 	"fmt"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"strings"
 	"time"
@@ -113,7 +115,68 @@ func GenerateResearchExcelWorkbook(spec *domain.ChartSpecification, writer io.Wr
 	f.SetCellValue(sheetData, footerCell, noteText)
 	f.SetCellStyle(sheetData, footerCell, footerCell, subtitleStyle)
 
-	// Embed Chart Picture in Excel if base64 image is provided!
+	// Placement column for chart & image (placed next to data table)
+	startCol := len(headers) + 2
+	chartColLetter, _ := excelize.ColumnNumberToName(startCol)
+	chartCell := fmt.Sprintf("%s4", chartColLetter)
+
+	// 1. Generate Native Interactive Excel Chart linked directly to table cells!
+	if len(spec.TableUsed.Rows) > 0 && len(headers) >= 2 {
+		lastRow := 4 + len(spec.TableUsed.Rows)
+		catRange := fmt.Sprintf("'%s'!$A$5:$A$%d", sheetData, lastRow)
+
+		var seriesList []excelize.ChartSeries
+		for c := 2; c <= len(headers); c++ {
+			colLetter, _ := excelize.ColumnNumberToName(c)
+			seriesList = append(seriesList, excelize.ChartSeries{
+				Name:       fmt.Sprintf("'%s'!$%s$4", sheetData, colLetter),
+				Categories: catRange,
+				Values:     fmt.Sprintf("'%s'!$%s$5:$%s$%d", sheetData, colLetter, colLetter, lastRow),
+			})
+		}
+
+		var chartType excelize.ChartType
+		switch spec.ChartType {
+		case domain.ChartTypeBar:
+			chartType = excelize.Col
+		case domain.ChartTypeLine:
+			chartType = excelize.Line
+		case domain.ChartTypeArea:
+			chartType = excelize.Area
+		case domain.ChartTypePie:
+			chartType = excelize.Pie
+		case domain.ChartTypeDoughnut:
+			chartType = excelize.Doughnut
+		case domain.ChartTypeRadar:
+			chartType = excelize.Radar
+		case domain.ChartTypeScatter:
+			chartType = excelize.Scatter
+		default:
+			chartType = excelize.Col
+		}
+
+		enable := true
+		errChart := f.AddChart(sheetData, chartCell, &excelize.Chart{
+			Type:   chartType,
+			Series: seriesList,
+			Title: excelize.ChartTitle{
+				Paragraph: []excelize.RichTextRun{{Text: spec.Title}},
+			},
+			Legend: excelize.ChartLegend{
+				Position: "bottom",
+			},
+			Format: excelize.GraphicOptions{
+				ScaleX:      1.2,
+				ScaleY:      1.2,
+				PrintObject: &enable,
+			},
+		})
+		if errChart != nil {
+			fmt.Printf("[Excel Export Warning] Falló AddChart nativo: %v\n", errChart)
+		}
+	}
+
+	// 2. Embed Rendered Graphic Picture (PNG from ECharts)
 	if spec.ChartImageBase64 != "" {
 		rawBase64 := spec.ChartImageBase64
 		if idx := strings.Index(rawBase64, ","); idx != -1 {
@@ -121,19 +184,28 @@ func GenerateResearchExcelWorkbook(spec *domain.ChartSpecification, writer io.Wr
 		}
 		pngBytes, err := base64.StdEncoding.DecodeString(rawBase64)
 		if err == nil && len(pngBytes) > 0 {
-			imgColNum := len(headers) + 2
-			imgColLetter, _ := excelize.ColumnNumberToName(imgColNum)
-			imgCell := fmt.Sprintf("%s4", imgColLetter)
-			_ = f.AddPictureFromBytes(sheetData, imgCell, &excelize.Picture{
+			// Place below native chart (row 22) or at chartCell if native chart could not be created
+			picCell := fmt.Sprintf("%s22", chartColLetter)
+			if len(headers) < 2 || len(spec.TableUsed.Rows) == 0 {
+				picCell = chartCell
+			}
+			enable := true
+			errPic := f.AddPictureFromBytes(sheetData, picCell, &excelize.Picture{
 				Extension: ".png",
 				File:      pngBytes,
 				Format: &excelize.GraphicOptions{
-					ScaleX:          0.62,
-					ScaleY:          0.62,
+					ScaleX:          0.65,
+					ScaleY:          0.65,
 					LockAspectRatio: true,
 					AltText:         spec.Title,
+					PrintObject:     &enable,
 				},
 			})
+			if errPic != nil {
+				fmt.Printf("[Excel Export Warning] Falló AddPictureFromBytes: %v\n", errPic)
+			}
+		} else if err != nil {
+			fmt.Printf("[Excel Export Warning] Error decodificando imagen base64: %v\n", err)
 		}
 	}
 
