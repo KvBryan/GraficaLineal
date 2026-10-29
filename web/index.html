@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GraficaLineal - Visualización Científica con DeepSeek</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/echarts.min.js"></script>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-icon">📈</div>
+      <div>
+        <div style="display:flex; align-items:center;">
+          <h1 class="brand-title">GraficaLineal</h1>
+          <span class="brand-tag">DeepSeek V3</span>
+        </div>
+        <p style="font-size:0.75rem; color:#64748b;">Generación y Auditoría de Gráficas para Documentos de Investigación</p>
+      </div>
+    </div>
+    <div class="header-badges">
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span>DeepSeek Online</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- Card 1: Document Upload -->
+    <section class="card">
+      <h2 class="card-title">📁 Carga de Documento de Investigación</h2>
+      <p class="card-subtitle">Sube un archivo de <strong>Excel (.xlsx, .xls)</strong> o un documento de <strong>Word (.docx)</strong>. DeepSeek analizará su estructura tabular y cuantitativa.</p>
+
+      <div class="upload-dropzone" id="uploadDropzone">
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.docx" style="display:none;">
+        <div class="upload-icon">📄 📊</div>
+        <div class="upload-text">Arrastra tu archivo aquí o haz clic para seleccionarlo</div>
+        <div class="upload-hint">Formatos soportados: Microsoft Excel (.xlsx, .xls) y Microsoft Word (.docx)</div>
+      </div>
+
+      <div class="sample-buttons-row">
+        <span style="font-size:0.8rem; font-weight:600; color:#64748b;">O prueba con datos de ejemplo en 1 clic:</span>
+        <button class="sample-btn" data-sample="clinical">🔬 Ensayo Clínico (Excel)</button>
+        <button class="sample-btn" data-sample="gantt">📅 Cronograma de Tesis (Word)</button>
+        <button class="sample-btn" data-sample="multivar">🌐 Rendimiento Multivariable (Excel)</button>
+      </div>
+    </section>
+
+    <!-- Card 2: Inspection & Interactive Selection -->
+    <section class="card" id="inspectionSection" style="display:none;">
+      <h2 class="card-title">🔍 Inspección del Documento</h2>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+        <div>
+          <span style="font-weight:600; color:#1e293b;" id="docFileName"></span>
+          <p style="font-size:0.825rem; color:#475569;" id="docSummary"></p>
+        </div>
+      </div>
+
+      <!-- Word-Specific Interactive Prompt Box -->
+      <div id="wordPromptBox" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:1.25rem; margin-bottom:1.25rem;">
+        <h3 style="font-size:0.95rem; font-weight:700; color:#1e3a8a; margin-bottom:0.35rem;">
+          ❓ ¿Qué parte del documento o qué datos deseas usar para la gráfica?
+        </h3>
+        <p style="font-size:0.825rem; color:#1e40af; margin-bottom:0.75rem;">
+          Puedes seleccionar una de las tablas o secciones extraídas abajo, o escribir una indicación personalizada para DeepSeek:
+        </p>
+        <div style="display:flex; gap:0.75rem;">
+          <input type="text" id="userPromptInput" class="form-input" placeholder="Ej: Compara la tasa de respuesta entre los grupos A y B, o usa los datos de la Tabla 1..." style="background:#fff;">
+          <button class="btn btn-primary" id="btnTriggerDeepSeek" style="white-space:nowrap;">
+            ✨ Procesar con DeepSeek
+          </button>
+        </div>
+      </div>
+
+      <div class="inspection-container">
+        <!-- Tables detected -->
+        <div>
+          <h4 style="font-size:0.875rem; font-weight:700; color:#334155; margin-bottom:0.5rem;">Tablas Cuantitativas Detectadas:</h4>
+          <div class="selection-list" id="tablesList"></div>
+        </div>
+
+        <!-- Sections detected (Word) -->
+        <div id="sectionsContainer" style="display:none;">
+          <h4 style="font-size:0.875rem; font-weight:700; color:#334155; margin-bottom:0.5rem;">Secciones de Texto Relevantes:</h4>
+          <div class="selection-list" id="sectionsList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card 3: Chart Studio & Visualizer -->
+    <section class="card" id="chartWorkspace" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+        <h2 class="card-title">📊 Visualización y Previsualización en Tiempo Real</h2>
+        <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+          <select id="paletteSelect" class="form-select" style="width:auto; padding:0.4rem 0.75rem; font-size:0.825rem;">
+            <option value="apa">Estilo Académico (APA / Monocromo)</option>
+            <option value="navy">Navy Científico Clásico</option>
+            <option value="nature">Biomedicina / Verde Teal</option>
+            <option value="vibrant">Multicolor de Alto Contraste</option>
+          </select>
+          <button class="btn btn-success" id="btnExportExcel">
+            📥 Exportar a Excel (.xlsx)
+          </button>
+          <button class="btn btn-primary" id="btnExportImage">
+            🖼️ Descargar PNG (Alta Res.)
+          </button>
+        </div>
+      </div>
+
+      <!-- 13 Supported Scientific Chart Types Toolbar -->
+      <div class="chart-type-toolbar">
+        <!-- 1. Comparación -->
+        <div class="chart-category-group">
+          <span class="category-label">1. Comparación:</span>
+          <button class="type-chip" data-type="bar">📊 Barras / Columnas</button>
+          <button class="type-chip" data-type="radar">🕸️ Radial / Araña</button>
+        </div>
+        <!-- 2. Evolución -->
+        <div class="chart-category-group">
+          <span class="category-label">2. Evolución Temporal:</span>
+          <button class="type-chip" data-type="line">📈 Líneas</button>
+          <button class="type-chip" data-type="area">🏔️ Áreas</button>
+          <button class="type-chip" data-type="gantt">📅 Gantt (Cronograma)</button>
+        </div>
+        <!-- 3. Composición -->
+        <div class="chart-category-group">
+          <span class="category-label">3. Composición:</span>
+          <button class="type-chip" data-type="pie">🥧 Pastel / Sectores</button>
+          <button class="type-chip" data-type="doughnut">🍩 Anillos (Dona)</button>
+          <button class="type-chip" data-type="funnel">🌪️ Embudo (Funnel)</button>
+          <button class="type-chip" data-type="waterfall">🪜 Cascada (Waterfall)</button>
+        </div>
+        <!-- 4. Distribución -->
+        <div class="chart-category-group">
+          <span class="category-label">4. Distribución / Relación:</span>
+          <button class="type-chip" data-type="scatter">🌌 Dispersión (Scatter)</button>
+          <button class="type-chip" data-type="histogram">📶 Histograma</button>
+          <button class="type-chip" data-type="boxplot">📦 Caja (Box Plot)</button>
+          <button class="type-chip" data-type="heatmap">🔥 Mapa de Calor</button>
+        </div>
+      </div>
+
+      <!-- Live Title Editing for Research Papers -->
+      <div style="display:grid; grid-template-columns: 2fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+        <div>
+          <label class="form-label">Título Formal de la Figura:</label>
+          <input type="text" id="chartTitleInput" class="form-input" placeholder="Título formal (ej. Figura 1: Evolución...)">
+        </div>
+        <div>
+          <label class="form-label">Subtítulo / Muestra / Unidades:</label>
+          <input type="text" id="chartSubtitleInput" class="form-input" placeholder="Subtítulo o notas de unidad">
+        </div>
+      </div>
+
+      <!-- ECharts Canvas -->
+      <div class="chart-canvas-wrapper" id="echartsCanvas"></div>
+
+      <!-- Audit and Live Table Editor -->
+      <div style="margin-top:1.5rem; display:grid; grid-template-columns: 1.2fr 1fr; gap:1.25rem;">
+        
+        <!-- Exact Tables Used & Real-Time Spreadsheet Editor -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <h3 style="font-size:0.95rem; font-weight:700; color:#1e293b;">
+              📋 Tablas Utilizadas (Editable en Tiempo Real)
+            </h3>
+            <span id="tableSourceRef" style="font-size:0.75rem; color:#64748b; font-family:monospace; background:#f1f5f9; padding:0.2rem 0.5rem; border-radius:4px;"></span>
+          </div>
+          <p style="font-size:0.8rem; color:#64748b; margin-bottom:0.6rem;">
+            Modifica cualquier valor en la tabla y la gráfica se actualizará de inmediato.
+          </p>
+          <div class="table-editor-container" id="tableEditorContainer"></div>
+        </div>
+
+        <!-- Research Methodology & Explanation ("Cómo se construyó la gráfica") -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <h3 style="font-size:0.95rem; font-weight:700; color:#1e293b;">
+              🔬 Metodología y Explicación Científica
+            </h3>
+            <button class="btn btn-secondary" id="btnCopyCitation" style="padding:0.25rem 0.6rem; font-size:0.75rem;">
+              📋 Copiar Cita
+            </button>
+          </div>
+
+          <div class="methodology-box">
+            <div class="methodology-header">
+              <span>🧠 Análisis Razonado de DeepSeek:</span>
+            </div>
+            <p class="methodology-text" id="methExplanation"></p>
+
+            <div class="meta-grid">
+              <span class="meta-label">Método Estadístico:</span>
+              <span class="meta-value" id="methAggregation"></span>
+            </div>
+
+            <div style="margin-top:0.75rem;">
+              <span class="meta-label" style="display:block; margin-bottom:0.25rem;">Mapeo de Variables:</span>
+              <div id="methVariablesMap" style="display:flex; flex-direction:column; gap:0.25rem; font-size:0.775rem;"></div>
+            </div>
+
+            <div class="citation-callout" id="methCitation"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingMessage">Procesando...</div>
+  </div>
+
+  <footer class="app-footer">
+    <p>GraficaLineal &bull; Sistema de Visualización Científica Automatizada &bull; Impulsado por DeepSeek & Go</p>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+services:
+  graficalineal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: graficalineal_app
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - PORT=8090
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-sk-3d4ed74400f14a10b4db14b284a07650}
+      - DEEPSEEK_BASE_URL=https://api.deepseek.com
+      - DEEPSEEK_MODEL=deepseek-chat
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8090/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
