@@ -132,7 +132,54 @@ func (c *DeepSeekClient) GenerateChart(ctx context.Context, req *GenerateRequest
 		spec.Palette = "apa"
 	}
 
+	fillAIInfoBoxDefaults(&spec, req)
+
 	return &spec, nil
+}
+
+func fillAIInfoBoxDefaults(spec *domain.ChartSpecification, req *GenerateRequest) {
+	if spec.AIInfoBox.SourceDocument == "" {
+		spec.AIInfoBox.SourceDocument = req.FileName
+	}
+	if spec.AIInfoBox.SourceLocation == "" {
+		if spec.TableUsed.SourceLocation != "" {
+			spec.AIInfoBox.SourceLocation = spec.TableUsed.SourceLocation
+		} else if req.SelectedTable != nil && req.SelectedTable.SourceRef != "" {
+			spec.AIInfoBox.SourceLocation = req.SelectedTable.SourceRef
+		} else {
+			spec.AIInfoBox.SourceLocation = "Documento cargado"
+		}
+	}
+	if spec.AIInfoBox.DataUsedSummary == "" {
+		cols := ""
+		if len(spec.TableUsed.Headers) > 0 {
+			cols = fmt.Sprintf("Variables: %v", spec.TableUsed.Headers)
+		}
+		spec.AIInfoBox.DataUsedSummary = fmt.Sprintf("Muestra de %d observaciones tabuladas. %s.", len(spec.TableUsed.Rows), cols)
+	}
+	if spec.AIInfoBox.VariablesDetail == "" {
+		if spec.Methodology.VariablesMapping != nil && len(spec.Methodology.VariablesMapping) > 0 {
+			var details []string
+			for k, v := range spec.Methodology.VariablesMapping {
+				details = append(details, fmt.Sprintf("%s: %s", k, v))
+			}
+			spec.AIInfoBox.VariablesDetail = fmt.Sprintf("%v", details)
+		} else {
+			spec.AIInfoBox.VariablesDetail = fmt.Sprintf("Eje X (%s) vs Series numéricas (%s)", spec.XAxisName, spec.YAxisName)
+		}
+	}
+	if spec.AIInfoBox.ChartExplanation == "" {
+		spec.AIInfoBox.ChartExplanation = spec.Methodology.Explanation
+		if spec.AIInfoBox.ChartExplanation == "" {
+			spec.AIInfoBox.ChartExplanation = fmt.Sprintf("Visualización de %s para comparar la distribución de magnitudes entre las categorías analizadas.", spec.ChartType)
+		}
+	}
+	if spec.AIInfoBox.KeyFindings == "" {
+		spec.AIInfoBox.KeyFindings = fmt.Sprintf("Los datos reflejan variaciones cuantitativas entre las %d categorías evaluadas, permitiendo contrastar el comportamiento de las series en el estudio.", len(spec.Categories))
+	}
+	if spec.AIInfoBox.PaperNarrative == "" {
+		spec.AIInfoBox.PaperNarrative = fmt.Sprintf("Tal como se presenta en la %s, los valores evidencian las diferencias estadísticas observadas a partir de los datos registrados en %s.", spec.Title, spec.AIInfoBox.SourceLocation)
+	}
 }
 
 // GenerateFallbackChart builds an intelligent deterministic chart if DeepSeek API is unreachable
@@ -198,6 +245,15 @@ func GenerateFallbackChart(req *GenerateRequest) *domain.ChartSpecification {
 				"Eje Y": "Valores numéricos de las series",
 			},
 			AcademicCitationNote: fmt.Sprintf("Nota: Elaboración propia a partir de datos contenidos en %s.", sourceLoc),
+		},
+		AIInfoBox: domain.AIInformationBox{
+			SourceDocument:   req.FileName,
+			SourceLocation:   sourceLoc,
+			DataUsedSummary:  fmt.Sprintf("%d registros procesados con columnas %v", len(rows), headers),
+			VariablesDetail:  fmt.Sprintf("Variable X: %s | Series Cuantitativas: %v", headers[0], headers[1:]),
+			ChartExplanation: fmt.Sprintf("La gráfica representa la comparación cuantitativa de los valores registrados en %s.", sourceLoc),
+			KeyFindings:      "Se aprecian contrastes significativos entre los grupos analizados, facilitando la interpretación visual de los resultados.",
+			PaperNarrative:   fmt.Sprintf("Como se observa en la %s, los valores reflejan los resultados experimentales obtenidos en %s.", title, sourceLoc),
 		},
 		Palette: "apa",
 	}

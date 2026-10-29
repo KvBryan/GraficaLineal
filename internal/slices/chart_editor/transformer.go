@@ -12,6 +12,9 @@ import (
 // TransformChartSpecification adjusts series and metadata when switching chart types or updating table data
 func TransformChartSpecification(spec *domain.ChartSpecification, targetType domain.ChartType) *domain.ChartSpecification {
 	spec.ChartType = targetType
+	if spec.AIInfoBox.ChartExplanation != "" {
+		spec.AIInfoBox.ChartExplanation = fmt.Sprintf("Visualización adaptada a formato de %s para comparar la distribución y relaciones de los datos de %s.", targetType, spec.AIInfoBox.SourceLocation)
+	}
 
 	switch targetType {
 	case domain.ChartTypePie, domain.ChartTypeDoughnut:

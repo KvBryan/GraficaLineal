@@ -437,6 +437,130 @@ body {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
+/* AI Information Box (Cuadro de Información de la IA) */
+.ai-info-card {
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
+  border-top: 4px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.08), 0 2px 4px -2px rgba(30, 64, 175, 0.05);
+}
+
+.ai-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ai-info-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ai-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .ai-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ai-info-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ai-info-item-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ai-info-item-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  word-break: break-word;
+}
+
+.ai-info-item-detail {
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.ai-explanation-box {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.ai-explanation-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ai-explanation-text {
+  font-size: 0.875rem;
+  color: #1e293b;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.ai-findings-block {
+  background: #ffffff;
+  border-left: 3px solid #0284c7;
+  padding: 0.75rem 1rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: #0f172a;
+}
+
+.ai-narrative-quote {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-left: 4px solid #16a34a;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: #14532d;
+  font-style: italic;
+  line-height: 1.5;
+}
+
 /* Methodology & Audit Section */
 .methodology-box {
   background: #f8fafc;

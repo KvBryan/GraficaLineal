@@ -161,6 +161,60 @@
       <!-- ECharts Canvas -->
       <div class="chart-canvas-wrapper" id="echartsCanvas"></div>
 
+      <!-- Cuadro de Información de la IA (De qué información se hizo, qué datos usó, en dónde y explicación) -->
+      <div class="ai-info-card" id="aiInfoBoxContainer">
+        <div class="ai-info-header">
+          <div class="ai-info-title">
+            <span>🧠 Cuadro de Información y Auditoría de la IA (DeepSeek)</span>
+            <span class="brand-tag" id="aiChartTypeBadge">Barra</span>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-secondary" id="btnCopyExplanation" style="padding:0.35rem 0.75rem; font-size:0.8rem;">
+              📋 Copiar Explicación para Manuscrito
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 Columns: De qué información, En dónde, Qué datos usó -->
+        <div class="ai-info-grid">
+          <div class="ai-info-item">
+            <span class="ai-info-item-label">📁 1. ¿De qué información se hizo?</span>
+            <span class="ai-info-item-value" id="aiDocSource">-</span>
+            <span class="ai-info-item-detail" id="aiDocTypeDetail">Documento de investigación</span>
+          </div>
+          <div class="ai-info-item">
+            <span class="ai-info-item-label">📍 2. ¿En dónde estaban los datos?</span>
+            <span class="ai-info-item-value" id="aiDocLocation">-</span>
+            <span class="ai-info-item-detail" id="aiDocRangeDetail">Ubicación exacta</span>
+          </div>
+          <div class="ai-info-item">
+            <span class="ai-info-item-label">🔢 3. ¿Qué datos usó la IA?</span>
+            <span class="ai-info-item-value" id="aiDataSummary">-</span>
+            <span class="ai-info-item-detail" id="aiVariablesDetail">Mapeo de variables</span>
+          </div>
+        </div>
+
+        <!-- Detailed Explanation Box -->
+        <div class="ai-explanation-box">
+          <div class="ai-explanation-title">
+            <span>💡 4. Explicación de la Gráfica:</span>
+          </div>
+          <p class="ai-explanation-text" id="aiChartExplanationText"></p>
+          
+          <div class="ai-findings-block">
+            <strong>🔎 Hallazgos clave y tendencias cuantitativas:</strong>
+            <p id="aiKeyFindingsText" style="margin-top:0.25rem;"></p>
+          </div>
+
+          <div class="ai-narrative-quote">
+            <span style="font-weight:700; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.05em; display:block; margin-bottom:0.25rem;">
+              📝 Redacción sugerida para el documento de investigación:
+            </span>
+            <span id="aiPaperNarrativeText"></span>
+          </div>
+        </div>
+      </div>
+
       <!-- Audit and Live Table Editor -->
       <div style="margin-top:1.5rem; display:grid; grid-template-columns: 1.2fr 1fr; gap:1.25rem;">
         

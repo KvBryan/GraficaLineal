@@ -55,6 +55,15 @@ Debes responder SIEMPRE con un ÚNICO objeto JSON válido con la siguiente estru
       "Variable Y / Métrica": "Nombre de métrica en origen"
     },
     "academicCitationNote": "Nota al pie de figura para publicación (ej. 'Nota: Datos procesados a partir de la Tabla 2. p < 0.05.')"
+  },
+  "aiInfoBox": {
+    "sourceDocument": "Nombre del archivo cargado",
+    "sourceLocation": "Ubicación exacta de los datos (ej. 'Hoja Resultados, celdas A1:D15' o 'Documento Word: Tabla 2 en Sección Metodología')",
+    "dataUsedSummary": "Descripción precisa de qué datos usó: qué filas, cuántas observaciones y qué columnas cuantitativas",
+    "variablesDetail": "Detalle de variables: Variable X = '...', Series Y = '...'",
+    "chartExplanation": "Explicación exhaustiva de la gráfica: qué representa, cómo interpretar los ejes y qué dinámica visual describe",
+    "keyFindings": "Hallazgos principales y conclusiones analíticas reveladas por la visualización",
+    "paperNarrative": "Párrafo académico formal redactado listo para insertar en los Resultados de la investigación (ej. 'Como se evidencia en la Figura 1...')"
   }
 }
 

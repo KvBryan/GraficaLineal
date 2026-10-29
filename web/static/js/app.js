@@ -229,6 +229,9 @@ function renderChartWorkspace(spec) {
   // Render ECharts
   renderECharts(spec);
 
+  // Render Cuadro de Información de la IA
+  renderAIInfoBox(spec);
+
   // Render Table Editor
   renderTableEditor(spec.tableUsed);
 
@@ -238,6 +241,77 @@ function renderChartWorkspace(spec) {
   // Populate title edit input
   document.getElementById('chartTitleInput').value = spec.title || '';
   document.getElementById('chartSubtitleInput').value = spec.subtitle || '';
+}
+
+function renderAIInfoBox(spec) {
+  const info = spec.aiInfoBox || {};
+  const typeMap = {
+    bar: 'Barras / Columnas',
+    radar: 'Radial / Araña',
+    line: 'Líneas',
+    area: 'Áreas',
+    gantt: 'Diagrama de Gantt',
+    pie: 'Pastel / Sectores',
+    doughnut: 'Anillos (Dona)',
+    funnel: 'Embudo (Funnel)',
+    waterfall: 'Cascada (Waterfall)',
+    scatter: 'Dispersión (Scatter)',
+    histogram: 'Histograma',
+    boxplot: 'Diagrama de Caja (Boxplot)',
+    heatmap: 'Mapa de Calor (Heatmap)'
+  };
+
+  const badgeElem = document.getElementById('aiChartTypeBadge');
+  if (badgeElem) {
+    badgeElem.textContent = typeMap[spec.chartType] || (spec.chartType || 'bar').toUpperCase();
+  }
+
+  const docSourceElem = document.getElementById('aiDocSource');
+  if (docSourceElem) {
+    docSourceElem.textContent = info.sourceDocument || (currentInspection ? currentInspection.fileName : 'Documento fuente');
+  }
+
+  const docTypeDetail = document.getElementById('aiDocTypeDetail');
+  if (docTypeDetail) {
+    docTypeDetail.textContent = spec.title || 'Figura de investigación';
+  }
+
+  const docLocationElem = document.getElementById('aiDocLocation');
+  if (docLocationElem) {
+    docLocationElem.textContent = info.sourceLocation || (spec.tableUsed ? spec.tableUsed.sourceLocation : 'Ubicación identificada');
+  }
+
+  const docRangeDetail = document.getElementById('aiDocRangeDetail');
+  if (docRangeDetail) {
+    const rCount = spec.tableUsed && spec.tableUsed.rows ? spec.tableUsed.rows.length : 0;
+    const cCount = spec.tableUsed && spec.tableUsed.headers ? spec.tableUsed.headers.length : 0;
+    docRangeDetail.textContent = `${rCount} observaciones × ${cCount} dimensiones`;
+  }
+
+  const dataSummaryElem = document.getElementById('aiDataSummary');
+  if (dataSummaryElem) {
+    dataSummaryElem.textContent = info.dataUsedSummary || `Datos tabulados con ${spec.categories ? spec.categories.length : 0} categorías analizadas.`;
+  }
+
+  const variablesDetailElem = document.getElementById('aiVariablesDetail');
+  if (variablesDetailElem) {
+    variablesDetailElem.textContent = info.variablesDetail || (spec.xAxisName ? `Eje X: ${spec.xAxisName} | Eje Y: ${spec.yAxisName}` : 'Variables categóricas y cuantitativas');
+  }
+
+  const chartExplanationElem = document.getElementById('aiChartExplanationText');
+  if (chartExplanationElem) {
+    chartExplanationElem.textContent = info.chartExplanation || (spec.methodology ? spec.methodology.explanation : 'Análisis explicativo generado por DeepSeek.');
+  }
+
+  const keyFindingsElem = document.getElementById('aiKeyFindingsText');
+  if (keyFindingsElem) {
+    keyFindingsElem.textContent = info.keyFindings || 'La visualización permite contrastar el comportamiento cuantitativo y evaluar las diferencias entre los grupos de estudio.';
+  }
+
+  const paperNarrativeElem = document.getElementById('aiPaperNarrativeText');
+  if (paperNarrativeElem) {
+    paperNarrativeElem.textContent = info.paperNarrative || `Tal como se exhibe en la ${spec.title || 'gráfica'}, los datos obtenidos en ${info.sourceLocation || 'la fuente'} reflejan las magnitudes analizadas.`;
+  }
 }
 
 function renderECharts(spec) {
@@ -716,15 +790,29 @@ function initFormControls() {
     }
   });
 
-  // Export Excel
+  // Export Excel with embedded chart picture and full AI info box
   document.getElementById('btnExportExcel').addEventListener('click', async () => {
     if (!currentChartSpec) return;
-    showLoading('Generando libro Excel con datos y metodología...');
+    showLoading('Generando libro Excel con gráfica incrustada, datos y cuadro de información...');
     try {
+      let chartImgBase64 = '';
+      if (chartInstance) {
+        chartImgBase64 = chartInstance.getDataURL({
+          type: 'png',
+          pixelRatio: 2.0,
+          backgroundColor: '#ffffff'
+        });
+      }
+
+      const exportPayload = {
+        ...currentChartSpec,
+        chartImageBase64: chartImgBase64
+      };
+
       const res = await fetch('/api/chart/export-excel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentChartSpec)
+        body: JSON.stringify(exportPayload)
       });
       if (!res.ok) throw new Error('Error en exportación a Excel');
 
@@ -743,6 +831,20 @@ function initFormControls() {
       hideLoading();
     }
   });
+
+  // Copy AI Explanation for Paper
+  const btnCopyExp = document.getElementById('btnCopyExplanation');
+  if (btnCopyExp) {
+    btnCopyExp.addEventListener('click', () => {
+      const exp = document.getElementById('aiChartExplanationText').textContent;
+      const findings = document.getElementById('aiKeyFindingsText').textContent;
+      const narrative = document.getElementById('aiPaperNarrativeText').textContent;
+      const fullText = `EXPLICACIÓN DE LA GRÁFICA:\n${exp}\n\nHALLAZGOS CLAVE:\n${findings}\n\nREDACCIÓN PARA EL DOCUMENTO:\n${narrative}`;
+      navigator.clipboard.writeText(fullText).then(() => {
+        alert('¡Explicación completa de la gráfica copiada al portapapeles!');
+      });
+    });
+  }
 
   // Export Image PNG
   document.getElementById('btnExportImage').addEventListener('click', () => {

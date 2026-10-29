@@ -71,23 +71,40 @@ type MethodologyData struct {
 	AcademicCitationNote string          `json:"academicCitationNote"` // Citation ready for paper figure footer
 }
 
+// AIInformationBox specifies the explicit provenance and explanatory audit requested by researchers:
+// 1. De qué información se hizo la gráfica
+// 2. Qué datos usó exactamente
+// 3. En dónde se encontraban los datos
+// 4. Explicación detallada de la gráfica para el documento
+type AIInformationBox struct {
+	SourceDocument   string `json:"sourceDocument"`   // Archivo de origen
+	SourceLocation   string `json:"sourceLocation"`   // En dónde (Hoja, rango de celdas o tabla de Word)
+	DataUsedSummary  string `json:"dataUsedSummary"`  // Qué datos usó exactamente (filas, columnas, métricas)
+	VariablesDetail  string `json:"variablesDetail"`  // Relación de variables (independientes, dependientes, factores)
+	ChartExplanation string `json:"chartExplanation"` // Explicación de la gráfica (qué representa)
+	KeyFindings      string `json:"keyFindings"`      // Hallazgos clave y tendencias cuantitativas
+	PaperNarrative   string `json:"paperNarrative"`   // Narrativa redactada lista para insertar en el artículo
+}
+
 // ChartSpecification is the complete representation of an active chart
 type ChartSpecification struct {
-	ChartType       ChartType         `json:"chartType"`
-	Title           string            `json:"title"`
-	Subtitle        string            `json:"subtitle,omitempty"`
-	XAxisName       string            `json:"xAxisName,omitempty"`
-	YAxisName       string            `json:"yAxisName,omitempty"`
-	Categories      []string          `json:"categories,omitempty"`
-	Series          []SeriesData      `json:"series"`
-	RadarIndicators []RadarIndicator  `json:"radarIndicators,omitempty"`
-	GanttItems      []GanttItem       `json:"ganttItems,omitempty"`
-	HeatmapData     []HeatmapPoint    `json:"heatmapData,omitempty"`
-	XAxisLabels     []string          `json:"xAxisLabels,omitempty"`
-	YAxisLabels     []string          `json:"yAxisLabels,omitempty"`
-	TableUsed       TableData         `json:"tableUsed"`
-	Methodology     MethodologyData   `json:"methodology"`
-	Palette         string            `json:"palette,omitempty"` // "apa", "navy", "pastel", "vibrant"
+	ChartType        ChartType         `json:"chartType"`
+	Title            string            `json:"title"`
+	Subtitle         string            `json:"subtitle,omitempty"`
+	XAxisName        string            `json:"xAxisName,omitempty"`
+	YAxisName        string            `json:"yAxisName,omitempty"`
+	Categories       []string          `json:"categories,omitempty"`
+	Series           []SeriesData      `json:"series"`
+	RadarIndicators  []RadarIndicator  `json:"radarIndicators,omitempty"`
+	GanttItems       []GanttItem       `json:"ganttItems,omitempty"`
+	HeatmapData      []HeatmapPoint    `json:"heatmapData,omitempty"`
+	XAxisLabels      []string          `json:"xAxisLabels,omitempty"`
+	YAxisLabels      []string          `json:"yAxisLabels,omitempty"`
+	TableUsed        TableData         `json:"tableUsed"`
+	Methodology      MethodologyData   `json:"methodology"`
+	AIInfoBox        AIInformationBox  `json:"aiInfoBox"`
+	ChartImageBase64 string            `json:"chartImageBase64,omitempty"` // Base64 PNG image for embedding in Excel
+	Palette          string            `json:"palette,omitempty"`          // "apa", "navy", "pastel", "vibrant"
 }
 
 // DocumentTable represents a structured table detected in an Excel or Word file
