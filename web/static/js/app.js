@@ -90,9 +90,9 @@ function renderInspectionUI(data) {
   document.getElementById('docFileName').textContent = data.fileName;
   document.getElementById('docSummary').textContent = data.summary;
 
-  const isWord = data.fileType === 'word';
+  const isInteractiveDoc = data.fileType === 'word' || data.fileType === 'pdf';
   const wordPromptBox = document.getElementById('wordPromptBox');
-  wordPromptBox.style.display = isWord ? 'block' : 'none';
+  wordPromptBox.style.display = isInteractiveDoc ? 'block' : 'none';
 
   const tableList = document.getElementById('tablesList');
   tableList.innerHTML = '';
@@ -154,8 +154,8 @@ function renderInspectionUI(data) {
     document.getElementById('sectionsContainer').style.display = 'none';
   }
 
-  // Auto trigger first generation if Excel
-  if (!isWord && data.tables && data.tables.length > 0) {
+  // Auto trigger first generation only if Excel
+  if (data.fileType === 'excel' && data.tables && data.tables.length > 0) {
     generateChartWithAI();
   }
 }
@@ -956,6 +956,36 @@ function loadSampleData(key) {
           totalRows: 3,
           totalCols: 6,
           sourceRef: "Hoja 'Rankings' (Filas 1 a 4)"
+        }
+      ]
+    };
+  } else if (key === 'paper_pdf') {
+    mockInspection = {
+      fileType: 'pdf',
+      fileName: 'Articulo_Nanomedicina_Resultados.pdf',
+      summary: 'PDF analizado: 6 páginas procesadas. Se identificó la Tabla 3 con datos cuantitativos de citotoxicidad y liberación de fármaco.',
+      tables: [
+        {
+          index: 1,
+          name: 'Tabla 3 (Pág. 4: Liberación y Viabilidad)',
+          headers: ['Tiempo (horas)', 'Liberación Acumulada (%)', 'Viabilidad Celular (%)'],
+          previewRows: [
+            ['2 hrs', 14.5, 96.2],
+            ['6 hrs', 32.8, 92.4],
+            ['12 hrs', 58.1, 86.0],
+            ['24 hrs', 81.4, 74.8],
+            ['48 hrs', 94.7, 61.3]
+          ],
+          totalRows: 5,
+          totalCols: 3,
+          sourceRef: 'PDF: Página 4 (Tabla 3: Cinética de liberación nanométrica)'
+        }
+      ],
+      sections: [
+        {
+          index: 1,
+          title: 'Página 4 del PDF (Resultados y Cinética)',
+          content: 'La cinética de liberación del nanofármaco mostró un perfil bifásico sostenido a lo largo de 48 horas, preservando una viabilidad celular superior al 60% en la etapa terminal.'
         }
       ]
     };

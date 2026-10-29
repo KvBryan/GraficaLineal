@@ -58,7 +58,21 @@ func (h *Handler) InspectDocument(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(result)
 
+	case ".pdf":
+		fileBytes, err := io.ReadAll(file)
+		if err != nil {
+			http.Error(w, "Error al leer documento PDF: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		result, err := ParsePDFFile(fileBytes, header.Filename)
+		if err != nil {
+			http.Error(w, "Error analizando documento PDF: "+err.Error(), http.StatusUnprocessableEntity)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(result)
+
 	default:
-		http.Error(w, "Formato no soportado. Por favor sube un archivo Excel (.xlsx, .xls) o Word (.docx)", http.StatusBadRequest)
+		http.Error(w, "Formato no soportado. Por favor sube un archivo Excel (.xlsx, .xls), Word (.docx) o PDF (.pdf)", http.StatusBadRequest)
 	}
 }

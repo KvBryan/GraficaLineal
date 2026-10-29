@@ -35,13 +35,13 @@
     <!-- Card 1: Document Upload -->
     <section class="card">
       <h2 class="card-title">📁 Carga de Documento de Investigación</h2>
-      <p class="card-subtitle">Sube un archivo de <strong>Excel (.xlsx, .xls)</strong> o un documento de <strong>Word (.docx)</strong>. DeepSeek analizará su estructura tabular y cuantitativa.</p>
+      <p class="card-subtitle">Sube un archivo de <strong>Excel (.xlsx, .xls)</strong>, un documento de <strong>Word (.docx)</strong> o un artículo en <strong>PDF (.pdf)</strong>. DeepSeek analizará su estructura tabular y cuantitativa.</p>
 
       <div class="upload-dropzone" id="uploadDropzone">
-        <input type="file" id="fileInput" accept=".xlsx,.xls,.docx" style="display:none;">
-        <div class="upload-icon">📄 📊</div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.docx,.pdf" style="display:none;">
+        <div class="upload-icon">📄 📊 📑</div>
         <div class="upload-text">Arrastra tu archivo aquí o haz clic para seleccionarlo</div>
-        <div class="upload-hint">Formatos soportados: Microsoft Excel (.xlsx, .xls) y Microsoft Word (.docx)</div>
+        <div class="upload-hint">Formatos soportados: Microsoft Excel (.xlsx, .xls), Microsoft Word (.docx) y Adobe PDF (.pdf)</div>
       </div>
 
       <div class="sample-buttons-row">
@@ -49,6 +49,7 @@
         <button class="sample-btn" data-sample="clinical">🔬 Ensayo Clínico (Excel)</button>
         <button class="sample-btn" data-sample="gantt">📅 Cronograma de Tesis (Word)</button>
         <button class="sample-btn" data-sample="multivar">🌐 Rendimiento Multivariable (Excel)</button>
+        <button class="sample-btn" data-sample="paper_pdf">📑 Paper Científico (PDF)</button>
       </div>
     </section>
 

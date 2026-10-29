@@ -8,9 +8,10 @@ Construida con **Go (Golang)** bajo **Vertical Slice Architecture (VSA)**, integ
 
 ## 🚀 Características Principales
 
-### 1. Soporte para Documentos Excel y Word
+### 1. Soporte para Documentos Excel, Word y PDF
 - **Documentos de Microsoft Word (`.docx`)**: Parser nativo en Go que inspecciona el documento, detecta tablas y bloques de texto cuantitativos, y permite al usuario elegir qué tabla o sección graficar mediante preguntas interactivas.
 - **Libros de Microsoft Excel (`.xlsx`, `.xls`)**: Análisis automático de hojas de cálculo, columnas numéricas y dimensiones, con previsualización inmediata y edición en vivo.
+- **Artículos y Manuscritos en PDF (`.pdf`)**: Extracción de páginas, detección de tablas cuantitativas alineadas y selección interactiva de secciones para análisis con DeepSeek.
 
 ### 2. Catálogo Completo de 13 Tipos de Gráficas Científicas
 

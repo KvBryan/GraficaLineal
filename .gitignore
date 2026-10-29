@@ -1,6 +1,10 @@
 # API Keys and sensitive config
 apikey*
 *.txt
+*.xlsx
+*.xls
+*.docx
+*.pdf
 .env
 .env.local
 
